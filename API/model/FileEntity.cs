@@ -8,5 +8,8 @@ namespace API.model
         public string ContentType { get; set; }
         public byte[] Data { get; set; }
         public DateTime UploadDate { get; set; } = DateTime.UtcNow;
+
+        public Guid UserId { get; set; }
+        public virtual AppUser User { get; set; }
     }
 }
