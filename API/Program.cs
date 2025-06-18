@@ -4,8 +4,10 @@ using System.Text;
 using API.Data;
 using API.model;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -50,6 +52,18 @@ builder.Services.AddAuthentication(opt =>
     };
 });
 
+builder.Services.AddAuthorization();
+
+builder.Services.AddRateLimiter(opt =>
+{
+    opt.AddFixedWindowLimiter("login", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.PermitLimit = 5;
+        opt.QueueLimit = 0;
+    });
+});
+
 var app = builder.Build();
 app.UseSwaggerUI();
 
@@ -58,6 +72,12 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseRateLimiter();
+
 
 app.MapGet("/", () => "Hello World!");
 
@@ -78,7 +98,7 @@ app.MapPost("/register", async (RegisterRequest request, UserManager<AppUser> us
 });
 
 
-app.MapPost("/login", async (LoginRequest request, UserManager<AppUser> userManager, IConfiguration config) =>
+app.MapPost("/login", [EnableRateLimiting("login")] async (LoginRequest request, UserManager<AppUser> userManager, IConfiguration config) =>
 {
     var user = await userManager.FindByEmailAsync(request.Email);
     if (user == null || !await userManager.CheckPasswordAsync(user, request.Password))
@@ -110,13 +130,16 @@ app.MapPost("/login", async (LoginRequest request, UserManager<AppUser> userMana
 
 // File
 
-app.MapPost("/upload", async (
+app.MapPost("/upload", [Authorize] async (
     IFormFile file,
     AppDbContext db,
     UserManager<AppUser> userManager,
     ClaimsPrincipal userPrincipal
     ) =>
 {
+    if (file.Length == 0) return Results.BadRequest("Empty file.");
+    if (file.Length > 10 * 1024 * 1024) return Results.BadRequest("Maximum size: 10MB");
+
     var user = await userManager.GetUserAsync(userPrincipal);
     if (user == null) return Results.Unauthorized();
 
@@ -125,7 +148,7 @@ app.MapPost("/upload", async (
 
     var fileEntity = new FileEntity
     {
-        FileName = file.FileName,
+        FileName = $"{Guid.NewGuid()}-{Path.GetFileName(file.FileName)}",
         ContentType = file.ContentType,
         Data = memoryStream.ToArray(),
         UserId = user.Id
@@ -138,7 +161,7 @@ app.MapPost("/upload", async (
 }).DisableAntiforgery();
 
 
-app.MapGet("/files", async (
+app.MapGet("/files", [Authorize] async (
     AppDbContext db,
     UserManager<AppUser> userManager,
     ClaimsPrincipal userPrincipal
@@ -155,7 +178,7 @@ app.MapGet("/files", async (
     return Results.Ok(files);
 });
 
-app.MapGet("/download/{id}", async (
+app.MapGet("/download/{id}", [Authorize] async (
     Guid id,
     AppDbContext db,
     UserManager<AppUser> userManager,
@@ -171,7 +194,7 @@ app.MapGet("/download/{id}", async (
     return Results.File(fileEntity.Data, fileEntity.ContentType, fileEntity.FileName);
 });
 
-app.MapDelete("/files/{id}", async (
+app.MapDelete("/files/{id}", [Authorize] async (
     Guid id,
     AppDbContext db,
     UserManager<AppUser> userManager,
