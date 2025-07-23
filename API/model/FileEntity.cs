@@ -8,7 +8,8 @@ namespace API.model
         public required string ContentType { get; set; }
         public required byte[] Data { get; set; }
         public DateTime UploadDate { get; set; } = DateTime.UtcNow;
-
+        public long Size => Data?.LongLength ?? 0;
+        
         public Guid UserId { get; set; }
         public virtual AppUser User { get; set; }
     }

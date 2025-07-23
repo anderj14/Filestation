@@ -42,7 +42,7 @@ builder.Services.AddAuthentication(opt =>
         ValidateIssuer = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["JWT:Audience"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
@@ -63,6 +63,8 @@ builder.Services.AddRateLimiter(opt =>
     });
 });
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 app.UseSwaggerUI();
 
@@ -71,6 +73,13 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
 }
+
+app.UseCors(x =>
+    x.AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowAnyOrigin()
+        .WithOrigins("http://localhost:4200", "https://localhost:4200")
+    );
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -97,11 +106,22 @@ app.MapPost("/register", async (RegisterRequest request, UserManager<AppUser> us
 });
 
 
-app.MapPost("/login", [EnableRateLimiting("login")] async (LoginRequest request, UserManager<AppUser> userManager, IConfiguration config) =>
+app.MapPost("/login", [EnableRateLimiting("login")] async (
+    LoginRequest request, 
+    UserManager<AppUser> userManager, 
+    IConfiguration config) =>
 {
     var user = await userManager.FindByEmailAsync(request.Email);
+
     if (user == null || !await userManager.CheckPasswordAsync(user, request.Password))
         return Results.Unauthorized();
+
+    // Si el usuario no tiene el email confirmado, lo confirmamos aquí
+    if (!user.EmailConfirmed)
+    {
+        user.EmailConfirmed = true;
+        await userManager.UpdateAsync(user); // Guardamos el cambio
+    }
 
     var claims = new[]
     {
@@ -124,7 +144,6 @@ app.MapPost("/login", [EnableRateLimiting("login")] async (LoginRequest request,
         Token: new JwtSecurityTokenHandler().WriteToken(token),
         Email: user.Email!
     ));
-
 });
 
 // File
@@ -141,6 +160,15 @@ app.MapPost("/upload", [Authorize] async (
 
     var user = await userManager.GetUserAsync(userPrincipal);
     if (user == null) return Results.Unauthorized();
+
+    var usedBytes = await db.Files
+    .Where(f => f.UserId == user.Id)
+    .SumAsync(f => (long)f.Data.Length);
+
+    const long MAX_STORAGE_BYTES = 100 * 1024 * 1024;
+
+    if (usedBytes + file.Length > MAX_STORAGE_BYTES)
+        return Results.BadRequest("Exceed your 100MB storage limit.");
 
     using var memoryStream = new MemoryStream();
     await file.CopyToAsync(memoryStream);
@@ -171,10 +199,20 @@ app.MapGet("/files", [Authorize] async (
 
     var files = await db.Files
     .Where(f => f.UserId == user.Id)
-    .Select(f => new { f.Id, f.FileName, f.UploadDate })
+    .Select(f => new { f.Id, f.FileName, f.UploadDate, Size = f.Data.Length })
     .ToListAsync();
 
-    return Results.Ok(files);
+    var totalUsed = files.Sum(f => (long)f.Size);
+    const long MAX_STORAGE_BYTES = 100 * 1024 * 1024;
+
+    return Results.Ok(new
+    {
+        StorageUsedBytes = totalUsed,
+        StorageUsedMB = Math.Round(totalUsed / 1024.0 / 1024.0, 2),
+        StorageLimitBytes = MAX_STORAGE_BYTES,
+        StorageLimitMB = 100,
+        Files = files
+    });
 });
 
 app.MapGet("/download/{id}", [Authorize] async (
