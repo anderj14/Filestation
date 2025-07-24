@@ -1,0 +1,26 @@
+<nav class="bg-white shadow-md p-4 flex justify-between items-center">
+  <div class="text-lg font-semibold text-gray-800">
+    Filestation
+  </div>
+
+  @if (auth.currentUser() !== null) {
+    <div class="relative">
+      <button (click)="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+        <span class="text-sm text-gray-800 font-medium">{{ auth.currentUser()!.username }}</span>
+        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+
+      @if (showDropdown()) {
+        <div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+          <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            Cerrar sesión
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+</nav>

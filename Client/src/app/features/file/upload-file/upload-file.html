@@ -1,0 +1,86 @@
+<div class="max-w-2xl mx-auto mt-6">
+  <div class="bg-white/80 backdrop-blur-xl rounded-lg p-8 shadow-sm border border-gray-100">
+    <h2 class="text-2xl font-light text-gray-900 mb-8">Subir Archivo</h2>
+
+    <!-- Área de drop -->
+    <div class="relative">
+      <input
+        type="file"
+        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        (change)="onFileSelected($event)"
+        id="file-upload"
+      />
+      <label
+        for="file-upload"
+        class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-all duration-300 group">
+        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+          <svg class="w-10 h-10 mb-3 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <p class="mb-2 text-sm text-gray-600 group-hover:text-blue-600 transition-colors">
+            <span class="font-medium">Haz clic para subir</span> o arrastra aquí
+          </p>
+          <p class="text-xs text-gray-400">Archivos hasta 10MB</p>
+        </div>
+      </label>
+    </div>
+
+    @if (selectedFile()) {
+      <div class="mt-6 p-4 bg-blue-50/50 rounded-xl">
+        <div class="flex items-center space-x-3">
+          <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span class="text-sm font-medium text-blue-700">Archivo seleccionado</span>
+        </div>
+      </div>
+    }
+
+    <!-- Botón de subida -->
+    <button
+      class="w-full mt-6 py-4 px-6 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-200 disabled:text-gray-400 text-white font-medium rounded-2xl transition-all duration-200 transform hover:scale-[1.02] disabled:hover:scale-100 disabled:cursor-not-allowed"
+      [disabled]="!selectedFile()"
+      (click)="onUpload()">
+      Subir Archivo
+    </button>
+
+    <!-- Barra de progreso -->
+    @if (progress() > 0 && progress() < 100) {
+      <div class="mt-6">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-medium text-gray-700">Subiendo...</span>
+          <span class="text-sm font-medium text-blue-600">{{ progress() }}%</span>
+        </div>
+        <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+          <div
+            class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+            [style.width.%]="progress()">
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Mensajes -->
+    @if (message()) {
+      <div class="mt-6 p-4 bg-green-50 rounded-xl">
+        <div class="flex items-center space-x-3">
+          <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <p class="text-sm font-medium text-green-700">{{ message() }}</p>
+        </div>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="mt-6 p-4 bg-red-50 rounded-xl">
+        <div class="flex items-center space-x-3">
+          <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-sm font-medium text-red-700">{{ error() }}</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -87,11 +87,11 @@ app.UseAuthorization();
 app.UseRateLimiter();
 
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/api/", () => "Hello World!");
 
 // Account
 
-app.MapPost("/register", async (RegisterRequest request, UserManager<AppUser> userManager) =>
+app.MapPost("/api/auth/register", [EnableRateLimiting("register")] async (RegisterRequest request, UserManager<AppUser> userManager) =>
 {
     var user = new AppUser { UserName = request.Email, Email = request.Email };
     var result = await userManager.CreateAsync(user, request.Password);
@@ -106,7 +106,7 @@ app.MapPost("/register", async (RegisterRequest request, UserManager<AppUser> us
 });
 
 
-app.MapPost("/login", [EnableRateLimiting("login")] async (
+app.MapPost("/api/auth/login", [EnableRateLimiting("login")] async (
     LoginRequest request, 
     UserManager<AppUser> userManager, 
     IConfiguration config) =>
@@ -142,13 +142,14 @@ app.MapPost("/login", [EnableRateLimiting("login")] async (
 
     return Results.Ok(new AuthResponse(
         Token: new JwtSecurityTokenHandler().WriteToken(token),
-        Email: user.Email!
+        Email: user.Email!,
+        Username: user.UserName!
     ));
 });
 
 // File
 
-app.MapPost("/upload", [Authorize] async (
+app.MapPost("/api/upload", [Authorize] async (
     IFormFile file,
     AppDbContext db,
     UserManager<AppUser> userManager,
@@ -187,8 +188,25 @@ app.MapPost("/upload", [Authorize] async (
     return Results.Ok(new { fileEntity.Id, fileEntity.FileName });
 }).DisableAntiforgery();
 
+app.MapGet("/api/auth/current-user", [Authorize] async (
+    UserManager<AppUser> userManager,
+    ClaimsPrincipal userPrincipal
+) =>
+{
+    var user = await userManager.GetUserAsync(userPrincipal);
+    if (user == null) return Results.Unauthorized();
 
-app.MapGet("/files", [Authorize] async (
+    return Results.Ok(new
+    {
+        Id = user.Id,
+        Email = user.Email,
+        Username = user.UserName
+    });
+});
+
+
+
+app.MapGet("/api/files", [Authorize] async (
     AppDbContext db,
     UserManager<AppUser> userManager,
     ClaimsPrincipal userPrincipal
@@ -215,7 +233,7 @@ app.MapGet("/files", [Authorize] async (
     });
 });
 
-app.MapGet("/download/{id}", [Authorize] async (
+app.MapGet("/api/download/{id}", [Authorize] async (
     Guid id,
     AppDbContext db,
     UserManager<AppUser> userManager,
@@ -231,7 +249,7 @@ app.MapGet("/download/{id}", [Authorize] async (
     return Results.File(fileEntity.Data, fileEntity.ContentType, fileEntity.FileName);
 });
 
-app.MapDelete("/files/{id}", [Authorize] async (
+app.MapDelete("/api/files/{id}", [Authorize] async (
     Guid id,
     AppDbContext db,
     UserManager<AppUser> userManager,
