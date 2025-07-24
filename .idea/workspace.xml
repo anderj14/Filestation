@@ -4,22 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="609f262d-c403-44cc-875d-cd131788e2a4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Client/.postcssrc.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/app/shared/model/file.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/app/shared/model/user.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/environments/environment.development.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/environments/environment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/model/AuthModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/model/AuthModels.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/angular.json" beforeDir="false" afterPath="$PROJECT_DIR$/Client/angular.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Client/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Client/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/app/app.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/app/app.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/app/app.html" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/app/app.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/app/app.routes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/app/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/app/app.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/styles.scss" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/styles.scss" afterDir="false" />
+    <list default="true" id="609f262d-c403-44cc-875d-cd131788e2a4" name="Changes" comment="Developed the entire Angular client for the file app with registration and login for subscribers and file uploads and downloads.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +44,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/andder/Documents/workspace/Filestation/Client/src/environments",
+    "last_opened_file_path": "/Users/andder/Documents/workspace/Filestation/Client/public",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -70,6 +56,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Client/public" />
       <recent name="$PROJECT_DIR$/Client/src/environments" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -91,11 +78,24 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1753297237853</updated>
-      <workItem from="1753297239199" duration="17512000" />
+      <workItem from="1753297239199" duration="18309000" />
     </task>
+    <task id="LOCAL-00001" summary="Developed the entire Angular client for the file app with registration and login for subscribers and file uploads and downloads.">
+      <option name="closed" value="true" />
+      <created>1753371298041</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1753371298041</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Developed the entire Angular client for the file app with registration and login for subscribers and file uploads and downloads." />
+    <option name="LAST_COMMIT_MESSAGE" value="Developed the entire Angular client for the file app with registration and login for subscribers and file uploads and downloads." />
   </component>
 </project>

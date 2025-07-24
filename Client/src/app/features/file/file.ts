@@ -1,6 +1,5 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Fileservice} from '../../core/services/fileservice';
-import {StorageInfo} from '../../shared/model/file';
 import {DatePipe} from '@angular/common';
 import {UploadFile} from './upload-file/upload-file';
 
